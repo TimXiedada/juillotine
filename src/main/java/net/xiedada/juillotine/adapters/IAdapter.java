@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: Apache-2.0 */
 /*
    Copyright (c) 2026 Xie Youtian. All rights reserved.
 
@@ -16,7 +17,7 @@
 
 package net.xiedada.juillotine.adapters;
 
-import  net.xiedada.juillotine.Service;
+import net.xiedada.juillotine.Service;
 
 public interface IAdapter {
     // Create a shortcode
@@ -24,9 +25,11 @@ public interface IAdapter {
 
     // Standard query and reverse query
     public String find(String shortcode);
+
     public String codeFor(String URL);
 
     // Remove an entry
     public void clear(String shortcode);
+
     public void clearCode(String URL);
 }

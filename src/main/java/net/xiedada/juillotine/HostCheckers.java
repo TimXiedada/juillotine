@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: Apache-2.0 */
 /*
    Copyright (c) 2026 Xie Youtian. All rights reserved.
 
@@ -23,27 +24,10 @@ import java.util.regex.Pattern;
 // import java.util.regex.PatternSyntaxException;
 
 public class HostCheckers {
-    public static abstract class HostChecker
-    {
+    public static abstract class HostChecker {
         protected String error;
-        public ResponseTriplet call(URL url){
-            if (!valid(url)){
-                return this.errorResponse();
-            } else {
-                return null;
-            }
-        }
-        public abstract boolean valid(URL url);
 
-        public ResponseTriplet errorResponse(){
-            return new ResponseTriplet(
-                    422,
-                    null,
-                    error
-            );
-        }
-
-        public static HostChecker matching(String host){
+        public static HostChecker matching(String host) {
             try {
                 Pattern p = Pattern.compile(host);
                 return new RegexHostChecker(p);
@@ -56,46 +40,78 @@ public class HostCheckers {
                 return new StringHostChecker(host);
             }
 
+        }
+
+        public static HostChecker matching(String host, String option) {
+            if (option == null) {
+                return new StringHostChecker(host);
+            }
+            return switch (option) {
+                case "wildcard" -> new WildcardHostChecker(host);
+                case "regex" -> new RegexHostChecker(host);
+                default -> new StringHostChecker(host);
+            };
 
         }
-        public HostChecker matching(Pattern pattern){
+
+
+        public ResponseTriplet call(URL url) {
+            if (!valid(url)) {
+                return this.errorResponse();
+            } else {
+                return null;
+            }
+        }
+
+        public abstract boolean valid(URL url);
+
+        public ResponseTriplet errorResponse() {
+            return new ResponseTriplet(
+                    422,
+                    null,
+                    error
+            );
+        }
+
+        public HostChecker matching(Pattern pattern) {
             return new RegexHostChecker(pattern);
         }
 
 
     }
 
-    public static class RegexHostChecker extends HostChecker{
+    public static class RegexHostChecker extends HostChecker {
         private final Pattern pattern;
+
         public RegexHostChecker(Pattern pattern) {
             this.pattern = pattern;
             error = "URL must match " + pattern.toString();
         }
 
-        public RegexHostChecker(String host){
+        public RegexHostChecker(String host) {
             // Reserved for future use
             this(Pattern.compile(host));
         }
 
         @Override
-        public ResponseTriplet call(URL url){
-            if (pattern.matcher(url.getHost()).matches()){
+        public ResponseTriplet call(URL url) {
+            if (pattern.matcher(url.getHost()).matches()) {
                 return null;
-            }
-            else{
+            } else {
                 return errorResponse();
             }
         }
+
         @Override
-        public boolean valid(URL url){
+        public boolean valid(URL url) {
             return pattern.matcher(url.getHost()).matches();
         }
     }
 
-    public static class StringHostChecker extends HostChecker{
+    public static class StringHostChecker extends HostChecker {
         private final String host;
 
-        StringHostChecker(String host){
+        StringHostChecker(String host) {
             error = "URL must be from " + host;
             this.host = host.toLowerCase();
         }
@@ -106,22 +122,26 @@ public class HostCheckers {
         }
     }
 
-    public static class WildcardHostChecker extends RegexHostChecker{
+    public static class WildcardHostChecker extends RegexHostChecker {
         private static final Pattern WILDCARD_MATCH_PATTERN = Pattern.compile("^\\*\\.([\\w.-]+)$");
-        public static String match(String arg){
-            if (arg == null || arg.isEmpty()){
+
+        WildcardHostChecker(String wcHost) {
+
+            super(Pattern.compile("^(?:[^.]+\\.)?" + match(wcHost) + "$"));
+            error = "URL must be from " + wcHost;
+        }
+
+
+        public static String match(String arg) {
+            if (arg == null || arg.isEmpty()) {
                 throw new IllegalArgumentException("Argument must not be empty");
             }
             Matcher m = WILDCARD_MATCH_PATTERN.matcher(arg);
-            if (!m.find()){
+            if (!m.find()) {
                 throw new IllegalArgumentException("Argument must be a valid wildcard domain");
             } else {
                 return m.group(1); // Base domain
             }
-        }
-        WildcardHostChecker(String wcHost){
-            super(Pattern.compile("(^|\\.)" + match(wcHost)));
-            error = "URL must be from" + wcHost;
         }
     }
 }

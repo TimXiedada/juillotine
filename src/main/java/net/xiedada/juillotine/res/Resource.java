@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: Apache-2.0 */
 /*
    Copyright (c) 2026 Xie Youtian. All rights reserved.
 
@@ -18,13 +19,11 @@ package net.xiedada.juillotine.res;
 
 import net.xiedada.juillotine.ResponseTriplet;
 import net.xiedada.juillotine.Service;
+
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
-import java.io.InputStream;
-import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Properties;
 
 
 public class Resource {
@@ -34,7 +33,7 @@ public class Resource {
     @GET
     @Path("/")
     public Response getRoot() {
-        try{
+        try {
             return Response.status(Response.Status.FOUND).location(service.ensureUrl(service.options().defaultUrl()).toURI()).build();
         } catch (URISyntaxException e) {
             // What the fuck?
@@ -57,10 +56,10 @@ public class Resource {
     private Response responseFromTriplet(ResponseTriplet responseTriplet) {
         Response.ResponseBuilder rb = Response.status(responseTriplet.status());
 
-        if  (responseTriplet.headers() != null) {
+        if (responseTriplet.headers() != null) {
             responseTriplet.headers().forEach(rb::header);
         }
-        if  (responseTriplet.body() != null) {
+        if (responseTriplet.body() != null) {
             rb.entity(responseTriplet.body());
         }
 

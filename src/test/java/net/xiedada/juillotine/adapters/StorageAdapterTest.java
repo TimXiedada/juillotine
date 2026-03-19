@@ -17,10 +17,24 @@ public abstract class StorageAdapterTest {
     /** Helper method to create default Options for tests */
     protected Service.Options createDefaultOptions() {
         return new Service.Options(
+                "default.com",
                 null,
                 "https://default.com",
                 6,
                 "",
+                false,
+                false
+        );
+    }
+
+    /** Helper method to create Options with custom charset for tests */
+    protected Service.Options createCustomCharsetOptions(String charset, int length) {
+        return new Service.Options(
+                "default.com",
+                null,
+                "https://default.com",
+                length,
+                charset,
                 false,
                 false
         );
@@ -134,5 +148,97 @@ public abstract class StorageAdapterTest {
     public void testAddNullUrlWithCustomThrowsNPE() {
         Adapter adapter = createAdapter();
         adapter.add(null, "custom", createDefaultOptions());
+    }
+
+    @Test
+    public void testAddWithCustomCharset() {
+        Adapter adapter = createAdapter();
+        String url = "https://example.com/custom";
+        String charset = "abcd1234";
+        int length = 6;
+        Service.Options options = createCustomCharsetOptions(charset, length);
+        String shortcode = adapter.add(url, null, options);
+        assertNotNull(shortcode);
+        assertEquals(length, shortcode.length());
+        assertTrue("Shortcode should only contain characters from charset: " + charset,
+                shortcode.matches("^[abcd1234]+$"));
+        assertEquals(url, adapter.find(shortcode));
+        assertEquals(shortcode, adapter.codeFor(url));
+    }
+
+    @Test
+    public void testAddWithCustomCharsetAllLetters() {
+        Adapter adapter = createAdapter();
+        String url = "https://example.com/letters";
+        String charset = "ABCDEFGHIJKLMNOP";
+        int length = 8;
+        Service.Options options = createCustomCharsetOptions(charset, length);
+        String shortcode = adapter.add(url, null, options);
+        assertNotNull(shortcode);
+        assertEquals(length, shortcode.length());
+        assertTrue("Shortcode should only contain uppercase letters",
+                shortcode.matches("^[A-P]+$"));
+        assertEquals(url, adapter.find(shortcode));
+    }
+
+    @Test
+    public void testAddWithCustomCharsetAllNumbers() {
+        Adapter adapter = createAdapter();
+        String url = "https://example.com/numbers";
+        String charset = "0123456789";
+        int length = 10;
+        Service.Options options = createCustomCharsetOptions(charset, length);
+        String shortcode = adapter.add(url, null, options);
+        assertNotNull(shortcode);
+        assertEquals(length, shortcode.length());
+        assertTrue("Shortcode should only contain numbers",
+                shortcode.matches("^[0-9]+$"));
+        assertEquals(url, adapter.find(shortcode));
+    }
+
+    @Test
+    public void testAddWithCustomCharsetAndSpecialChars() {
+        Adapter adapter = createAdapter();
+        String url = "https://example.com/special";
+        String charset = "!@#$%^&*()";
+        int length = 5;
+        Service.Options options = createCustomCharsetOptions(charset, length);
+        String shortcode = adapter.add(url, null, options);
+        assertNotNull(shortcode);
+        assertEquals(length, shortcode.length());
+        for (char c : shortcode.toCharArray()) {
+            assertTrue("Character should be from charset: " + c, charset.indexOf(c) >= 0);
+        }
+        assertEquals(url, adapter.find(shortcode));
+    }
+
+    @Test
+    public void testAddWithCustomCharsetThenClearAndAddReturnsDifferent() {
+        Adapter adapter = createAdapter();
+        String url = "https://example.com/clear";
+        String charset = "xyz";
+        int length = 4;
+        Service.Options options = createCustomCharsetOptions(charset, length);
+        String first = adapter.add(url, null, options);
+        adapter.clearCode(url);
+        String second = adapter.add(url, null, options);
+        // May or may not be the same, depending on hash, but should be valid
+        assertNotNull(second);
+        assertEquals(length, second.length());
+        assertTrue(second.matches("^[xyz]+$"));
+        assertEquals(url, adapter.find(second));
+    }
+
+    @Test
+    public void testAddWithCustomCharsetPrefersProvidedShortcode() {
+        Adapter adapter = createAdapter();
+        String url = "https://example.com/prefer";
+        String customCode = "mycustomcode";
+        String charset = "abcd";
+        int length = 4;
+        Service.Options options = createCustomCharsetOptions(charset, length);
+        String result = adapter.add(url, customCode, options);
+        assertEquals(customCode, result); // Should return the provided code, not generate one
+        assertEquals(url, adapter.find(customCode));
     }
 }

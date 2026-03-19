@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: Apache-2.0 */
 /*
    Copyright (c) 2026 Xie Youtian. All rights reserved.
 
@@ -15,6 +16,8 @@
 */
 
 package net.xiedada.juillotine;
+
 import java.util.Map;
 
-public record ResponseTriplet(int status, Map<String,String> headers, String body) {}
+public record ResponseTriplet(int status, Map<String, String> headers, String body) {
+}
