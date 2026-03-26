@@ -20,18 +20,17 @@ package net.xiedada.juillotine.res;
 import net.xiedada.juillotine.ResponseTriplet;
 import net.xiedada.juillotine.Service;
 
-import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Response;
+import jakarta.inject.Singleton;
 import java.net.URISyntaxException;
 
-
+@Singleton
+@Path("/")
 public class Resource {
-    @Inject
-    private Service service = new Service();
+    private final Service service = new Service();
 
     @GET
-    @Path("/")
     public Response getRoot() {
         try {
             return Response.status(Response.Status.FOUND).location(service.ensureUrl(service.options().defaultUrl()).toURI()).build();
@@ -42,13 +41,12 @@ public class Resource {
     }
 
     @GET
-    @Path("/{code}")
+    @Path("{code}")
     public Response getCode(@PathParam("code") String code) {
         return responseFromTriplet(service.get(code));
     }
 
     @POST
-    @Path("/")
     public Response postRoot(@FormParam("url") String url, @FormParam("code") String code) {
         return responseFromTriplet(service.create(url, code));
     }

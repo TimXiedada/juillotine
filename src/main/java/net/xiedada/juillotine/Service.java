@@ -22,6 +22,7 @@ import net.xiedada.juillotine.adapters.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -36,7 +37,7 @@ public class Service {
     private HostCheckers.HostChecker hostChecker;
 
     public Service() {
-        try (InputStream pin = this.getClass().getResourceAsStream("/juillotine.properties")) {
+        try (InputStream pin = this.getClass().getResourceAsStream("/conf/juillotine.properties")) {
             propertiesFull = new Properties();
             propertiesFull.load(pin);
             initialize(propertiesFull);
@@ -93,7 +94,12 @@ public class Service {
 
     public ResponseTriplet get(String code) {
         String url = db.find(code);
-        return url != null ? new ResponseTriplet(302, new HashMap<String, String>(Map.of("Location", parseUrl(url).toString())), "") : new ResponseTriplet(404, null, "No url found for " + code);
+        try {
+            return url != null ? new ResponseTriplet(302, new HashMap<String, String>(Map.of("Location", parseUrl(url).toURI().toASCIIString())), "") : new ResponseTriplet(404, null, "No url found for " + code);
+        } catch (URISyntaxException e) {
+            // What the fuck? Isn't URL a subset to URI?
+            throw new RuntimeException(e);
+        }
     }
 
     public ResponseTriplet create(String url, String code) {
@@ -157,8 +163,9 @@ public class Service {
             String requiredHost = properties.getProperty("juillotine.requiredHost");
             boolean stripQuery = Boolean.parseBoolean(properties.getProperty("juillotine.URLSanitization.stripQuery"));
             boolean stripAnchor = Boolean.parseBoolean(properties.getProperty("juillotine.URLSanitization.stripAnchor"));
-            int length = Integer.parseInt(properties.getProperty("juillotine.customShortcode.length"));
-            String charset = properties.getProperty("juillotine.customShortcode.charset");
+            String lengthStr = properties.getProperty("juillotine.customShortcode.length", "0");
+            int length = (lengthStr == null || lengthStr.isBlank()) ? 0 : Integer.parseInt(lengthStr);
+            String charset = properties.getProperty("juillotine.customShortcode.charset", "");
             String hostMatchingMode = properties.getProperty("juillotine.hostMatcherMode", "");
             return new Options(requiredHost, hostMatchingMode, defaultURL, length, charset, stripQuery, stripAnchor);
         }

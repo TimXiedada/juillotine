@@ -25,7 +25,6 @@ import java.util.Properties;
 
 public class MemoryAdapter extends Adapter {
 
-
     private final BiMap<String, String> urlToCodeDB, codeToUrlDB;
 
     public MemoryAdapter(Properties props) {
@@ -36,7 +35,7 @@ public class MemoryAdapter extends Adapter {
     }
 
     @Override
-    public String add(String url, String shortcode, Options options) throws IllegalArgumentException, NullPointerException {
+    public synchronized String add(String url, String shortcode, Options options) throws IllegalArgumentException, NullPointerException {
         if (url == null) {
             throw new NullPointerException("url is null");
         }
@@ -55,22 +54,22 @@ public class MemoryAdapter extends Adapter {
     }
 
     @Override
-    public String find(String shortcode) throws NullPointerException {
+    public synchronized String find(String shortcode) throws NullPointerException {
         return codeToUrlDB.get(shortcode);
     }
 
     @Override
-    public String codeFor(String url) throws NullPointerException {
+    public synchronized String codeFor(String url) throws NullPointerException {
         return urlToCodeDB.get(url);
     }
 
     @Override
-    public void clear(String shortcode) {
+    public synchronized void clear(String shortcode) {
         codeToUrlDB.remove(shortcode);
     }
 
     @Override
-    public void clearCode(String url) {
+    public synchronized void clearCode(String url) {
         urlToCodeDB.remove(url);
     }
 
