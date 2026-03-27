@@ -31,7 +31,7 @@ import java.util.Properties;
 
 public class Service {
 
-    private Properties propertiesFull;
+    private final Properties propertiesFull;
     private Options options;
     private Adapter db;
     private HostCheckers.HostChecker hostChecker;
@@ -95,7 +95,7 @@ public class Service {
     public ResponseTriplet get(String code) {
         String url = db.find(code);
         try {
-            return url != null ? new ResponseTriplet(302, new HashMap<String, String>(Map.of("Location", parseUrl(url).toURI().toASCIIString())), "") : new ResponseTriplet(404, null, "No url found for " + code);
+            return url != null ? new ResponseTriplet(302, new HashMap<>(Map.of("Location", parseUrl(url).toURI().toASCIIString())), "") : new ResponseTriplet(404, null, "No url found for " + code);
         } catch (URISyntaxException e) {
             // What the fuck? Isn't URL a subset to URI?
             throw new RuntimeException(e);
@@ -115,12 +115,12 @@ public class Service {
                 resp = new ResponseTriplet(
                         422,
                         null,
-                        "Unable to shorten " + ensuredUrl.toString()
+                        "Unable to shorten " + ensuredUrl
                 );
             } else {
                 resp = new ResponseTriplet(
                         201,
-                        new HashMap<String, String>(Map.of("Location", actualCode)),
+                        new HashMap<>(Map.of("Location", actualCode)),
                         ensuredUrl.toString()
                 );
             }
@@ -139,7 +139,7 @@ public class Service {
             return new ResponseTriplet(
                     422,
                     null,
-                    "Invalid url: " + url.toString()
+                    "Invalid url: " + url
             );
         else return this.hostChecker.call(url);
     }
