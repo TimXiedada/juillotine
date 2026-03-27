@@ -21,15 +21,15 @@ import net.xiedada.juillotine.Service;
 
 public interface IAdapter {
     // Create a shortcode
-    public String add(String URL, String shortcode, Service.Options options);
+    String add(String URL, String shortcode, Service.Options options);
 
     // Standard query and reverse query
-    public String find(String shortcode);
+    String find(String shortcode);
 
-    public String codeFor(String URL);
+    String codeFor(String URL);
 
     // Remove an entry
-    public void clear(String shortcode);
+    void clear(String shortcode);
 
-    public void clearCode(String URL);
+    void clearCode(String URL);
 }
