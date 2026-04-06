@@ -61,18 +61,11 @@ public class EmbeddedServer {
 
         // 配置Jersey Servlet programmatically
         ResourceConfig config = new ResourceConfig();
-        config.register(net.xiedada.juillotine.res.Resource.class);
-        config.register(DebugFilter.class);
+        config.register(Resource.class);
+        // config.register(DebugFilter.class);
         ServletHolder jerseyServlet = new ServletHolder(new ServletContainer(config));
         context.addServlet(jerseyServlet, "/*");
         jerseyServlet.setInitOrder(0);
-
-//        // 添加健康检查Servlet
-//        ServletHolder healthServlet = context.addServlet(
-//            HealthCheck.class,
-//            "/health"
-//        );
-//        healthServlet.setInitOrder(1);
 
         // 启动服务器
         server.start();

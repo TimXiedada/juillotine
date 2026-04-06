@@ -7,6 +7,7 @@
     <groupId>net.xiedada</groupId>
     <artifactId>juillotine</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+    <packaging>war</packaging>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
@@ -41,7 +42,6 @@
             <artifactId>jersey-hk2</artifactId>
             <version>3.1.9</version>
         </dependency>
-        <!-- Jetty 嵌入式服务器 -->
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-server</artifactId>
@@ -56,7 +56,6 @@
 
     <build>
         <plugins>
-            <!-- Maven Shade Plugin - 打包包含所有依赖的可执行 JAR -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
@@ -70,11 +69,9 @@
                         <configuration>
                             <createDependencyReducedPom>true</createDependencyReducedPom>
                             <transformers>
-                                <!-- 设置主类 -->
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <mainClass>net.xiedada.juillotine.EmbeddedServer</mainClass>
                                 </transformer>
-                                <!-- 合并 Jersey SPI 文件 -->
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                             </transformers>
                             <filters>

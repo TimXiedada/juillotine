@@ -19,6 +19,7 @@ package net.xiedada.juillotine;
 
 import net.xiedada.juillotine.adapters.*;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
@@ -37,13 +38,54 @@ public class Service {
     private HostCheckers.HostChecker hostChecker;
 
     public Service() {
-        try (InputStream pin = this.getClass().getResourceAsStream("/conf/juillotine.properties")) {
-            propertiesFull = new Properties();
-            propertiesFull.load(pin);
-            initialize(propertiesFull);
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to load configuration", e);
+        this.propertiesFull = loadProperties();
+        initialize(this.propertiesFull);
+    }
+
+    private Properties loadProperties() {
+        Properties props = new Properties();
+
+        // 1. 尝试从环境变量JUILLOTINE_PROPS读取
+        String envPath = System.getenv("JUILLOTINE_PROPS");
+        if (envPath != null) {
+            try (InputStream is = new FileInputStream(envPath)) {
+                props.load(is);
+                return props;
+            } catch (IOException e) {
+                // 继续下一个选项
+            }
         }
+
+        // 2. 尝试从工作文件夹读取
+        try (InputStream is = new FileInputStream("juillotine.properties")) {
+            props.load(is);
+            return props;
+        } catch (IOException e) {
+            // 继续下一个选项
+        }
+
+        // 3. 尝试从Tomcat配置目录读取
+        String catalinaBase = System.getProperty("catalina.base");
+        if (catalinaBase != null) {
+            try (InputStream is = new FileInputStream(catalinaBase + "/conf/juillotine.properties")) {
+                props.load(is);
+                return props;
+            } catch (IOException e) {
+                // 继续下一个选项
+            }
+        }
+
+        // 4. 尝试从Resource内置读取
+        try (InputStream is = getClass().getResourceAsStream("/conf/juillotine.properties")) {
+            if (is != null) {
+                props.load(is);
+                return props;
+            }
+        } catch (IOException e) {
+            // 所有选项都失败
+        }
+
+        throw new RuntimeException("Failed to load configuration from any source");
     }
 
     public Service(Properties properties) {

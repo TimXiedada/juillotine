@@ -15,10 +15,7 @@
    limitations under the License.
 */
 
-package net.xiedada.juillotine.res;
-
-import net.xiedada.juillotine.ResponseTriplet;
-import net.xiedada.juillotine.Service;
+package net.xiedada.juillotine;
 
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Response;

@@ -15,8 +15,6 @@
  */
 package net.xiedada.juillotine;
 
-import net.xiedada.juillotine.res.Resource;
-
 import jakarta.ws.rs.ApplicationPath;
 import jakarta.ws.rs.core.Application;
 import java.util.HashSet;
@@ -27,12 +25,11 @@ import java.util.Set;
  * 定义REST API的基础路径和提供的服务类
  */
 @ApplicationPath("/")
-public class    App extends Application {
+public class App extends Application {
 
     @Override
     public Set<Class<?>> getClasses() {
         Set<Class<?>> classes = new HashSet<>();
-        // 注册REST资源类
         classes.add(Resource.class);
         return classes;
     }
