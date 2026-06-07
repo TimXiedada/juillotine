@@ -1,6 +1,7 @@
 # Juillotine
 
->This application is a work in progress. It still cannot run properly in any forms.
+>This application is a work in progress. Only memory storage is supported currently,
+>so short links in memory will be dropped once this service stops.
 
 A lightweight URL shortening service built with Java and JAX-RS.
 
