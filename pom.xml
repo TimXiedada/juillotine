@@ -52,6 +52,16 @@
             <artifactId>jetty-ee10-servlet</artifactId>
             <version>12.1.6</version>
         </dependency>
+        <dependency>
+            <groupId>com.sleepycat</groupId>
+            <artifactId>je</artifactId>
+            <version>18.3.12</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongodb-driver-sync</artifactId>
+            <version>5.8.0</version>
+        </dependency>
     </dependencies>
 
     <build>

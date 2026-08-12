@@ -46,6 +46,9 @@ public abstract class Adapter implements IAdapter {
 
     public abstract void clearCode(String url);
 
+    // Close connections/database
+    public abstract void close();
+
     String getCode(String url, String code, Service.Options options) {
         return code != null && !code.isEmpty()
                 ? code
@@ -70,7 +73,7 @@ public abstract class Adapter implements IAdapter {
     private String shortenFixedCharset(String url, int length, String char_set) {
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
-            BigInteger bigint = new BigInteger(md.digest(url.getBytes(StandardCharsets.UTF_8)));
+            BigInteger bigint = new BigInteger(1, md.digest(url.getBytes(StandardCharsets.UTF_8)));
             StringBuilder code = new StringBuilder();
             while (bigint.compareTo(BigInteger.ZERO) > 0 && length > 0) {
                 code.append(char_set.charAt((bigint.remainder(BigInteger.valueOf(char_set.length()))).intValue()));

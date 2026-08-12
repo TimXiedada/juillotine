@@ -73,4 +73,9 @@ public class MemoryAdapter extends Adapter {
         urlToCodeDB.remove(url);
     }
 
+    @Override
+    public void close() {
+        // Not needed! ( •̀ ω •́ )✧
+    }
+
 }
